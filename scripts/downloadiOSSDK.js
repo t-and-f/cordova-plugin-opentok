@@ -34,7 +34,7 @@ module.exports = function (context) {
                     console.log(`frameworkDir`, frameworkDir);
                     exec(`mkdir -p ${frameworkDir}`, function() {
                         console.log(`created the OpenTok.framework directory: ${frameworkDir}`);
-                        exec(`cp -R ${downloadDir} ${frameworkDir}`, function (err, out, code) {
+                        exec(`cp ${downloadDir} ${frameworkDir}`, function (err, out, code) {
                             console.log(`copied the SDK to the framework directory`);
                             listFiles(frameworkDir);
                             listFiles(`${frameworkDir}`);
