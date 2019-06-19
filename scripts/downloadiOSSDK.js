@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+var fs = require('fs');
 
 function listFiles(directoryPath) {
     fs.readdir(directoryPath, function (err, files) {
