@@ -13,14 +13,23 @@ module.exports = function (context) {
                 console.log('downloaded');
                 exec('tar -zxvf ./' + IosSDKVersion + '.tar.bz2', function (err, out, code) {
                     console.log('expanded');
+                    var downloadDir = `./${IosSDKVersion}/OpenTok.framework`;
                     var frameworkDir = context.opts.plugin.dir + '/src/ios/';
-                    exec('mv ./' + IosSDKVersion + '/OpenTok.framework ' + frameworkDir, function (err, out, code) {
-                        console.log('moved OpenTok.framework into ' + frameworkDir);
-                        exec('rm -r ./' + IosSDKVersion, function (err, out, code) {
-                            console.log('Removed extracted dir');
-                            exec('rm ./' + IosSDKVersion + '.tar.bz2', function (err, out, code) {
-                                console.log('Removed downloaded SDK');
-                                deferral.resolve();
+                    console.log(`downloadDir`, downloadDir);
+                    console.log(`frameworkDir`, frameworkDir);
+                    exec(`mkdir -p ${frameworkDir}`, function() {
+                        console.log(`created the OpenTok.framework directory: ${frameworkDir}`);
+                        exec(`cp -R ${downloadDir} ${frameworkDir}`, function (err, out, code) {
+                            console.log(`copied the SDK to the framework directory`);
+                            exec(`rm -r ${downloadDir}`, function() {
+                                console.log(`removed the download directory: ${downloadDir}`);
+                                exec('rm -r ./' + IosSDKVersion, function (err, out, code) {
+                                    console.log('Removed extracted dir');
+                                    exec('rm ./' + IosSDKVersion + '.tar.bz2', function (err, out, code) {
+                                        console.log('Removed downloaded SDK');
+                                        deferral.resolve();
+                                    });
+                                });
                             });
                         });
                     });
