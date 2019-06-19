@@ -37,7 +37,7 @@ module.exports = function (context) {
                         exec(`cp -R ${downloadDir} ${frameworkDir}`, function (err, out, code) {
                             console.log(`copied the SDK to the framework directory`);
                             listFiles(frameworkDir);
-                            listFiles(`${frameworkDir}OpenTok.framework`);
+                            listFiles(`${frameworkDir}`);
                             exec(`rm -r ${downloadDir}`, function() {
                                 console.log(`removed the download directory: ${downloadDir}`);
                                 exec('rm -r ./' + IosSDKVersion, function (err, out, code) {
