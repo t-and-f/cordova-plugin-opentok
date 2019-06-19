@@ -1,5 +1,19 @@
 #!/usr/bin/env node
 
+function listFiles(directoryPath) {
+    fs.readdir(directoryPath, function (err, files) {
+        //handling error
+        if (err) {
+            return console.log('Unable to scan directory: ' + err);
+        } 
+        //listing all files using forEach
+        files.forEach(function (file) {
+            // Do whatever you want to do with the file
+            console.log(file); 
+        });
+    });
+}
+
 module.exports = function (context) {
     var IosSDKVersion = "OpenTok-iOS-2.14.0";
     var downloadFile = require('./downloadFile.js'),
@@ -21,6 +35,8 @@ module.exports = function (context) {
                         console.log(`created the OpenTok.framework directory: ${frameworkDir}`);
                         exec(`cp -R ${downloadDir} ${frameworkDir}`, function (err, out, code) {
                             console.log(`copied the SDK to the framework directory`);
+                            listFiles(frameworkDir);
+                            listFiles(`${frameworkDir}/OpenTok.framework`);
                             exec(`rm -r ${downloadDir}`, function() {
                                 console.log(`removed the download directory: ${downloadDir}`);
                                 exec('rm -r ./' + IosSDKVersion, function (err, out, code) {
