@@ -29,7 +29,7 @@ module.exports = function (context) {
                 exec('tar -zxvf ./' + IosSDKVersion + '.tar.bz2', function (err, out, code) {
                     console.log('expanded');
                     var downloadDir = `./${IosSDKVersion}/OpenTok.framework`;
-                    var frameworkDir = context.opts.plugin.dir + '/src/ios';
+                    var frameworkDir = context.opts.plugin.dir + '/src/ios/OpenTok.framework';
                     console.log(`downloadDir`, downloadDir);
                     console.log(`frameworkDir`, frameworkDir);
                     exec(`mkdir -p ${frameworkDir}`, function() {
