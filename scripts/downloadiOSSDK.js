@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-var fs = require('fs');
+var fs = require('fs-extra');
 
 function listFiles(directoryPath) {
     fs.readdir(directoryPath, function (err, files) {
@@ -29,15 +29,15 @@ module.exports = function (context) {
                 exec('tar -zxvf ./' + IosSDKVersion + '.tar.bz2', function (err, out, code) {
                     console.log('expanded');
                     var downloadDir = `./${IosSDKVersion}/OpenTok.framework`;
-                    var frameworkDir = context.opts.plugin.dir + '/src/ios/OpenTok.framework';
+                    var frameworkDir = context.opts.plugin.dir + '/src/ios';
                     console.log(`downloadDir`, downloadDir);
                     console.log(`frameworkDir`, frameworkDir);
                     exec(`mkdir -p ${frameworkDir}`, function() {
                         console.log(`created the OpenTok.framework directory: ${frameworkDir}`);
-                        exec(`cp ${downloadDir} ${frameworkDir}`, function (err, out, code) {
+                        fs.copy(downloadDir, frameworkDir, function (err, out, code) {
                             console.log(`copied the SDK to the framework directory`);
+                            listFiles(downloadDir);
                             listFiles(frameworkDir);
-                            listFiles(`${frameworkDir}`);
                             exec(`rm -r ${downloadDir}`, function() {
                                 console.log(`removed the download directory: ${downloadDir}`);
                                 exec('rm -r ./' + IosSDKVersion, function (err, out, code) {
