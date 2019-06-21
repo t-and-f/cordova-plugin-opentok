@@ -321,7 +321,7 @@
     [self setPosition: sid top: top left: left width: width height: height];
 }
 - (void)setPosition:(NSString*)sid top:(CGFloat)top left:(CGFloat)left width:(CGFloat)width height:(CGFloat)height {
-    int offsetTop = 20;
+    int offsetTop = 0;
     if (statusBarPlugin) {
         // We set the offsetTop to the top position of the webView because the StatusBarPlugin changes the top position to the proper offset.
         offsetTop = self.webView.frame.origin.y;
