@@ -26,8 +26,9 @@ class TBSession
     Cordova.exec(@eventReceived, TBError, OTPlugin, "addEvent", ["sessionEvents"] )
     Cordova.exec(TBSuccess, TBError, OTPlugin, "connect", [@token] )
     return
-  disconnect: () ->
-    Cordova.exec(TBSuccess, TBError, OTPlugin, "disconnect", [] )
+  disconnect: (cb) ->
+    callback = cb || TBSuccess
+    Cordova.exec(callback, TBError, OTPlugin, "disconnect", [] )
   forceDisconnect: (connection) ->
     return @
   forceUnpublish: (stream ) ->
