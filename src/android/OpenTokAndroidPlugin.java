@@ -764,8 +764,13 @@ public class OpenTokAndroidPlugin extends CordovaPlugin
             Log.i(TAG, "connect command called");
             mSession.connect(args.getString(0));
         } else if (action.equals("disconnect")) {
-            isDisconnecting = true;
-            mSession.disconnect();
+            Log.i(TAG, "disconnect command called");
+            cordova.getThreadPool().execute(new Runnable() {
+                @Override
+                public void run() {
+                    callbackContext.sendPluginResult(disconnect());
+                }
+            });
         } else if (action.equals("publish")) {
             if (sessionConnected) {
                 if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M) {
@@ -1281,5 +1286,18 @@ public class OpenTokAndroidPlugin extends CordovaPlugin
                                          StreamVideoType arg2) {
         // TODO Auto-generated method stub
 
+    }
+
+    private PluginResult disconnect() {
+        try {
+            Log.i(TAG, "disconnecting..");
+            isDisconnecting = true;
+            mSession.disconnect();
+            return new PluginResult(PluginResult.Status.OK);
+        } catch(Exception e) {
+            e.printStackTrace();
+            Log.e(TAG, "disconnect" + ": Error: " + PluginResult.Status.ERROR);
+            return new PluginResult(PluginResult.Status.ERROR);
+        }
     }
 }
