@@ -588,7 +588,11 @@ public class OpenTokAndroidPlugin extends CordovaPlugin
         public void onDisconnected(SubscriberKit arg0) {
             // TODO Auto-generated method stub
             JSONObject eventData = new JSONObject();
-            String streamId = arg0.getStream().getStreamId();
+            String streamId = "unknown";
+            if (arg0 != null && arg0.getStream() != null) {
+                streamId = arg0.getStream().getStreamId();
+            }
+
             try {
                 eventData.put("streamId", streamId);
                 triggerJSEvent("subscriberEvents", "disconnected", eventData);
