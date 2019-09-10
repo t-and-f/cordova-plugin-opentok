@@ -424,6 +424,10 @@
 // Called by session.disconnect()
 - (void)disconnect:(CDVInvokedUrlCommand*)command{
     [_session disconnect:nil];
+    
+    // Return to Javascript
+    CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
+    [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
 }
 
 // Called by session.publish(top, left)
