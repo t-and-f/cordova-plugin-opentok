@@ -710,7 +710,13 @@ public class OpenTokAndroidPlugin extends CordovaPlugin
         Log.i(TAG, action);
         // TB Methods
         if (action.equals("initPublisher")) {
-            myPublisher = new RunnablePublisher(args);
+            Log.i(TAG, "initPublisher command called");
+            cordova.getThreadPool().execute(new Runnable() {
+                @Override
+                public void run() {
+                    callbackContext.sendPluginResult(initPublisher(args));
+                }
+            });
         } else if (action.equals("destroyPublisher")) {
             if (myPublisher != null) {
                 myPublisher.destroyPublisher();
@@ -719,23 +725,13 @@ public class OpenTokAndroidPlugin extends CordovaPlugin
                 return true;
             }
         } else if (action.equals("initSession")) {
-            apiKey = args.getString(0);
-            sessionId = args.getString(1);
-            Log.i(TAG, "created new session with data: " + args.toString());
-            mSession = new Session.Builder(this.cordova.getActivity().getApplicationContext(), apiKey, sessionId).sessionOptions(new Session.SessionOptions() {
+            Log.i(TAG, "initSession command called");
+            cordova.getThreadPool().execute(new Runnable() {
                 @Override
-                public boolean useTextureViews() {
-                    return true;
+                public void run() {
+                    callbackContext.sendPluginResult(initSession(args));
                 }
-            }).build();
-            mSession.setSessionListener(this);
-            mSession.setConnectionListener(this);
-            mSession.setReconnectionListener(this);
-            mSession.setSignalListener(this);
-            mSession.setStreamPropertiesListener(this);
-            logOT(null);
-
-            // publisher methods
+            });
         } else if (action.equals("setCameraPosition")) {
             myPublisher.mPublisher.cycleCamera();
         } else if (action.equals("publishAudio")) {
@@ -760,9 +756,13 @@ public class OpenTokAndroidPlugin extends CordovaPlugin
             Log.i(TAG, "adding new event - " + args.getString(0));
             myEventListeners.put(args.getString(0), callbackContext);
         } else if (action.equals("connect")) {
-            isDisconnecting = false;
             Log.i(TAG, "connect command called");
-            mSession.connect(args.getString(0));
+            cordova.getThreadPool().execute(new Runnable() {
+                @Override
+                public void run() {
+                    callbackContext.sendPluginResult(connect(args));
+                }
+            });
         } else if (action.equals("disconnect")) {
             Log.i(TAG, "disconnect command called");
             cordova.getThreadPool().execute(new Runnable() {
@@ -772,15 +772,13 @@ public class OpenTokAndroidPlugin extends CordovaPlugin
                 }
             });
         } else if (action.equals("publish")) {
-            if (sessionConnected) {
-                if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M) {
-                    cordova.requestPermissions(this, 0, perms);
-                    permissionsCallback = callbackContext;
-                } else {
-                    myPublisher.startPublishing();
-                    Log.i(TAG, "publisher is publishing");
+            Log.i(TAG, "publish command called");
+            cordova.getThreadPool().execute(new Runnable() {
+                @Override
+                public void run() {
+                    callbackContext.sendPluginResult(publish());
                 }
-            }
+            });
         } else if (action.equals("signal")) {
             Connection c = connectionCollection.get(args.getString(2));
             if (c == null) {
@@ -1300,4 +1298,75 @@ public class OpenTokAndroidPlugin extends CordovaPlugin
             return new PluginResult(PluginResult.Status.ERROR);
         }
     }
+
+    private PluginResult initSession(JSONArray args) {
+        try {
+            Log.i(TAG, "created new session with data: " + args);
+            apiKey = args.getString(0);
+            sessionId = args.getString(1);
+            mSession = new Session.Builder(this.cordova.getActivity().getApplicationContext(), apiKey, sessionId).sessionOptions(new Session.SessionOptions() {
+                @Override
+                public boolean useTextureViews() {
+                    return true;
+                }
+            }).build();
+            mSession.setSessionListener(this);
+            mSession.setConnectionListener(this);
+            mSession.setReconnectionListener(this);
+            mSession.setSignalListener(this);
+            mSession.setStreamPropertiesListener(this);
+            logOT(null);
+            return new PluginResult(PluginResult.Status.OK);
+        } catch(Exception e) {
+            e.printStackTrace();
+            Log.e(TAG, "initSession" + ": Error: " + PluginResult.Status.ERROR);
+            return new PluginResult(PluginResult.Status.ERROR);
+        }
+    }
+
+    private PluginResult initPublisher(JSONArray args) {
+        try {
+            Log.i(TAG, "initialising publisher with data: " + args);
+            myPublisher = new RunnablePublisher(args);
+            return new PluginResult(PluginResult.Status.OK);
+        } catch(Exception e) {
+            e.printStackTrace();
+            Log.e(TAG, "initPublisher" + ": Error: " + PluginResult.Status.ERROR);
+            return new PluginResult(PluginResult.Status.ERROR);
+        }
+    }
+
+    private PluginResult publish() {
+        try {
+            Log.i(TAG, "publish called");
+            if (sessionConnected) {
+                if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M) {
+                    cordova.requestPermissions(this, 0, perms);
+                    permissionsCallback = callbackContext;
+                } else {
+                    myPublisher.startPublishing();
+                    Log.i(TAG, "publisher is publishing");
+                }
+            }
+            return new PluginResult(PluginResult.Status.OK);
+        } catch(Exception e) {
+            e.printStackTrace();
+            Log.e(TAG, "publish" + ": Error: " + PluginResult.Status.ERROR);
+            return new PluginResult(PluginResult.Status.ERROR);
+        }
+    }
+    
+    private PluginResult connect(JSONArray args) {
+        try {
+            isDisconnecting = false;
+            Log.i(TAG, "connect called");
+            mSession.connect(args.getString(0));
+            return new PluginResult(PluginResult.Status.OK);
+        } catch(Exception e) {
+            e.printStackTrace();
+            Log.e(TAG, "publish" + ": Error: " + PluginResult.Status.ERROR);
+            return new PluginResult(PluginResult.Status.ERROR);
+        }
+    }
+            
 }
